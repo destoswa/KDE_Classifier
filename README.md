@@ -1,4 +1,24 @@
 # KDE - method
+## Installation
+In order to setup the environment, two requirements.txt files are at disposal depending on the version of CUDA that you are using.
+So first, whether you are on windows or linux, look at the version of cuda you have with the command:
+```
+nvcc --version
+```
+Then, you can follow one of the cases:
+- if you have a version newer or equal to CUDA 11.8, you can try and directly install all the libraries by running the following:
+```
+pip install -r requirements_cuda12.txt
+```
+- if you have an older version or if for some reasons the first requirement file doesn't work, you can install the addequate version of [pytorch](#https://pytorch.org/) and install the rest of the libraries by runnign the following:
+```
+pip install -r requirement_wo_torch.txt
+```
+
+**_Additional note_**:
+
+if, during the inference, all samples are marked as failed, it might be due to an incompatible version of numpy with the one of pytorch installed. This issue can be solved by downgrading the version of numpy to the following: `pip install numpy==1.26.4`
+
 ## Introduction
 The concept of this model is based on Kernel Density Estimator. Each sample is mapped to a 3D normalized grid. This grid is then filtered through a process where a 3D kernel is matched to each point and discretized over a fixed number of neighbour cells. For each position in the grid, the values of all the kernels that overlap on it are then added up.
 
