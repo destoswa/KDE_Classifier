@@ -1,11 +1,14 @@
 # KDE - method
 ## Installation
-In order to setup the environment, two requirements.txt files are at disposal depending on the version of CUDA that you are using.
-So first, whether you are on windows or linux, look at the version of cuda you have with the command:
+In order to setup the environment, first create a virtual environement from the root of the project:
+```
+python -m venv .venv
+```
+Then, in order to install the differente libraries, two requirements.txt files are at disposal depending on the version of CUDA that you are using. Whether you are on windows or linux, you can find the version of CUDA you are using with the command:
 ```
 nvcc --version
 ```
-Then, you can follow one of the cases:
+Then, you can follow one of the following cases:
 - if you have a version newer or equal to CUDA 11.8, you can try and directly install all the libraries by running the following:
 ```
 pip install -r requirements_cuda12.txt
