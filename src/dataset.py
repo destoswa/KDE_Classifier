@@ -58,32 +58,6 @@ class ModelTreesDataLoader(Dataset):
         # shuffle the dataset
         self.data = self.data.sample(frac=frac, random_state=42).reset_index(drop=True)
 
-        # print('Loading ', split, ' set...')
-        # self.num_fails = []
-        # if do_update_caching:
-
-
-        #     # args = range(len(self.data))
-        #     # for arg in args:
-        #     #     self.mapToKDE(root_dir, pickle_dir, kde_transform, arg)
-
-
-
-        #     # creating grids using multiprocess
-        #     with concurrent.futures.ProcessPoolExecutor() as executor:
-        #         partialmapToKDE = partial(self.mapToKDE, root_dir, pickle_dir, kde_transform)
-        #         args = range(len(self.data))
-        #         results = list(tqdm(executor.map(partialmapToKDE, args), total=len(self.data), smoothing=.9, desc="creating caching files"))
-        #     self.num_fails = [(idx, x) for (idx, x) in enumerate(results) if x != ""]
-        #     print(f"Number of failing files: {len(self.num_fails)}")
-        #     for idx, samp in self.num_fails:
-        #         print(idx, ' - ', samp)
-        
-        # list_ids = sorted([idx for idx, _ in self.num_fails], reverse=True)
-        # print(list_ids)
-        # for idx in list_ids:
-        #     del self.data[idx]
-
         for idx, samp in tqdm(self.data.iterrows(), total=len(self.data), smoothing=.9, desc="loading file names"):
             self.data.iloc[idx, 0] = os.path.join('data', os.path.basename(samp['data']) + '.pickle')
 
@@ -100,7 +74,7 @@ class ModelTreesDataLoader(Dataset):
             sample = pickle.load(file)
 
         sample = {'grid': sample['data'], 'label': sample['label'], 'filename': filename}
-        print("FILENAME: ", sample['filename'])
+
         if self.transform:
             sample = self.transform(sample)
 

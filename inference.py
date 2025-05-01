@@ -11,8 +11,7 @@ from time import time
 import tkinter as tk
 from tkinter import messagebox
 
-if not os.getcwd().endswith('KDE_model'):
-    os.chdir("./PointCould_Classification/KDE_model")
+
 # ===================================================
 # ================= HYPERPARAMETERS =================
 # ===================================================
@@ -30,7 +29,6 @@ num_repeat_kernel = 2
 SRC_INF_ROOT = "./inference/"
 SRC_INF_DATA = "test"
 SRC_INF_RESULTS = os.path.join(SRC_INF_ROOT, 'results/')
-# SRC_INF_DATA = r"D:\PDM_repo\Github\PDM\data\classification_gt\classification_gt\color_grp_full_tile_128_out_gt_split_instance\data"
 SRC_MODEL = "./models/pretrained/model_KDE.tar"
 INFERENCE_FILE = "modeltrees_inference.csv"
 with open(SRC_INF_ROOT + 'modeltrees_shape_names.txt', 'r') as f:
