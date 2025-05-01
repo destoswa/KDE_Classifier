@@ -16,7 +16,7 @@ from time import time
 # ================= HYPERPARAMETERS =================
 # ===================================================
 # preprocessing
-do_preprocess = False
+do_preprocess = True
 
 # inference
 batch_size = 12
@@ -26,7 +26,7 @@ grid_size = 64
 kernel_size = 1
 num_repeat_kernel = 2
 SRC_INF_ROOT = "./inference/"
-SRC_INF_DATA = "test"
+SRC_INF_DATA = "data"
 SRC_INF_RESULTS = os.path.join(SRC_INF_ROOT, 'results/')
 SRC_MODEL = "./models/pretrained/model_KDE.tar"
 INFERENCE_FILE = "modeltrees_inference.csv"

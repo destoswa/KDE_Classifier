@@ -48,16 +48,12 @@ class ModelTreesDataLoader(Dataset):
                 results = list(tqdm(executor.map(partialmapToKDE, args), total=len(self.data), smoothing=.9, desc="creating caching files"))
             self.num_fails = [(idx, x) for (idx, x) in enumerate(results) if x != ""]
             print(f"Number of failing files: {len(self.num_fails)}")
-            if len(self.num_fails) > 0:
-                print("Failing samples:")
-                for idx, samp in self.num_fails:
-                    print(idx, ' - ', samp)
 
-                # Update self.data and csv files for data and failed_data
-                df_failed_data = self.data.iloc[[x for x,_ in self.num_fails]]
-                self.data.drop(labels=[x for x,_ in self.num_fails], axis=0, inplace=True)
-                df_failed_data.to_csv(os.path.join(root_dir, "failed_data.csv"), sep=';', index=True, index_label="Index")
-                self.data.to_csv(os.path.join(root_dir, csvfile), sep=';', index=False)
+            # Update self.data and csv files for data and failed_data
+            df_failed_data = self.data.iloc[[x for x,_ in self.num_fails]]
+            self.data.drop(labels=[x for x,_ in self.num_fails], axis=0, inplace=True)
+            df_failed_data.to_csv(os.path.join(root_dir, "results/failed_data.csv"), sep=';', index=True, index_label="Index")
+            self.data.to_csv(os.path.join(root_dir, csvfile), sep=';', index=False)
 
         # shuffle the dataset
         self.data = self.data.sample(frac=frac, random_state=42).reset_index(drop=True)
