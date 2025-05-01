@@ -53,7 +53,11 @@ class ModelTreesDataLoader(Dataset):
                 for idx, samp in self.num_fails:
                     print(idx, ' - ', samp)
 
+                # Update self.data and csv files for data and failed_data
+                df_failed_data = self.data.iloc[[x for x,_ in self.num_fails]]
                 self.data.drop(labels=[x for x,_ in self.num_fails], axis=0, inplace=True)
+                df_failed_data.to_csv(os.path.join(root_dir, "failed_data.csv"), sep=';', index=True, index_label="Index")
+                self.data.to_csv(os.path.join(root_dir, csvfile), sep=';', index=False)
 
         # shuffle the dataset
         self.data = self.data.sample(frac=frac, random_state=42).reset_index(drop=True)
@@ -90,12 +94,10 @@ class ModelTreesDataLoader(Dataset):
             pcd_name = os.path.join(root_dir, samp['data'])
             pcd = o3d.io.read_point_cloud(pcd_name, format='pcd')
             pointCloud = np.asarray(pcd.points)
-            # print(f"Shape of {pcd_name}: {pointCloud.shape}")
             label = np.asarray(samp['label'])
             sample = {'data': pointCloud, 'label': label}
             sample = kde_transform(sample)
 
-            #with open(pickle_dir + samp['data'] + '.pickle', 'wb') as file:
             with open(os.path.join(pickle_dir, 'data', os.path.basename(samp['data']) + '.pickle'), 'wb') as file:
                 pickle.dump(sample, file)
             return ""

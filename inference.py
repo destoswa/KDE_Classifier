@@ -8,16 +8,15 @@ from torch.utils.data import DataLoader
 from src.utils import *
 from models.model import KDE_cls_model
 from time import time
-import tkinter as tk
-from tkinter import messagebox
+# import tkinter as tk
+# from tkinter import messagebox
 
 
 # ===================================================
 # ================= HYPERPARAMETERS =================
 # ===================================================
 # preprocessing
-do_preprocess = True
-do_update_caching = True
+do_preprocess = False
 
 # inference
 batch_size = 12
@@ -44,28 +43,32 @@ for idx, cls in enumerate(SAMPLE_LABELS):
 
 
 def inference(args):
+    # create the folders for results
+    if os.path.exists(SRC_INF_RESULTS):
+        print('A "results" directory already exists.')
+        answer = None
+        while answer not in ['y', 'yes', 'n', 'no', '']:
+            answer = input("Do you want to overwrite it (y/n)?")
+            if answer.lower() in ['y', 'yes', '']:
+                shutil.rmtree(SRC_INF_RESULTS)
+            elif answer.lower() in ['n', 'no']:
+                print("Stoping the process..")
+                quit()
+            else:
+                print("wrong input.")
+    os.makedirs(SRC_INF_RESULTS)
+
+    # load the model
     print("Loading model...")
     conf = {
         "num_class": args['num_class'],
         "grid_dim": args['grid_size'],
     }
-
-    # load the model
     model = KDE_cls_model(conf).to(torch.device('cuda'))
     checkpoint = torch.load(SRC_MODEL, weights_only=False)
     model.load_state_dict(checkpoint['model_state_dict'])
     model.eval()
 
-    # create the folders for results
-    if os.path.exists(SRC_INF_RESULTS):
-        root = tk.Tk()
-        root.withdraw()
-        if messagebox.askyesno("Potential data lost!", 'A "results" directory already exists. Do you want to overwrite it?'):
-            shutil.rmtree(SRC_INF_RESULTS)
-    os.makedirs(SRC_INF_RESULTS)
-
-    # if not os.path.isdir("./inference/results/"):
-    #     os.mkdir("./inference/results")
     for cls in SAMPLE_LABELS:
         os.makedirs(os.path.join(SRC_INF_RESULTS, cls), exist_ok=True)
 
@@ -79,7 +82,7 @@ def inference(args):
     # make the predictions
     print("making predictions...")
     kde_transform = ToKDE(args['grid_size'], args['kernel_size'], args['num_repeat_kernel'])
-    inferenceSet = ModelTreesDataLoader(INFERENCE_FILE, SRC_INF_ROOT, split='inference', transform=None, do_update_caching=args['do_update_caching'], kde_transform=kde_transform)
+    inferenceSet = ModelTreesDataLoader(INFERENCE_FILE, SRC_INF_ROOT, split='inference', transform=None, do_update_caching=args['do_preprocess'], kde_transform=kde_transform)
     if len(inferenceSet.num_fails) > 0:
         os.makedirs(os.path.join(SRC_INF_RESULTS, 'failures/'), exist_ok=True)
         for _, file_src in inferenceSet.num_fails:
@@ -102,7 +105,6 @@ def inference(args):
         # copy samples into right result folder
         for idx, pred in enumerate(pred_choice):
             fn = os.path.basename(filenames[idx].replace('.pickle', ''))
-            dest = "inference/results/" + dict_labels[pred.item()] + "/" + fn.replace(SRC_INF_DATA, "")
             dest = os.path.join("inference/results/", dict_labels[pred.item()], fn)
             shutil.copyfile(
                 os.path.abspath(os.path.join(SRC_INF_ROOT, SRC_INF_DATA, fn)),
@@ -117,7 +119,6 @@ def inference(args):
 def main():
     args = {
         'do_preprocess': do_preprocess,
-        'do_update_caching': do_update_caching,
         'grid_size': grid_size,
         'num_class': num_class,
         'kernel_size': kernel_size,
@@ -137,35 +138,3 @@ if __name__ == "__main__":
     secs = int((duration - 3600 * hours - 60 * mins))
     print(duration)
     print(f"Time to process inference: {hours}:{mins}:{secs}")
-
-#     pcd_files = [
-#         "./inference/data/cluster_11631.pcd",
-#         "./inference/data/cluster_113581.pcd",
-#         "./inference/data/cluster_127837.pcd",
-#         "./inference/data/cluster_102883.pcd",
-#         "./inference/data/cluster_122776.pcd",
-#         "./inference/data/cluster_107092.pcd",
-#         "./inference/data/cluster_127170.pcd",
-#         "./inference/data/cluster_121849.pcd",
-#         "./inference/data/cluster_109930.pcd",
-#         "./inference/data/cluster_10517.pcd",
-#         "./inference/data/cluster_11513.pcd",
-#         "./inference/data/cluster_10563.pcd",
-#         "./inference/data/cluster_117904.pcd",
-#         "./inference/data/cluster_107170.pcd",
-#         "./inference/data/cluster_110075.pcd",
-#         "./inference/data/cluster_117906.pcd",
-#         "./inference/data/cluster_111588.pcd",
-#         "./inference/data/cluster_114509.pcd",
-#         "./inference/data/cluster_107415.pcd",
-#         "./inference/data/cluster_120845.pcd",
-#         "./inference/data/cluster_124815.pcd",
-#         "./inference/data/cluster_11956.pcd",
-#         "./inference/data/cluster_123756.pcd",
-#         "./inference/data/cluster_111217.pcd",
-#         "./inference/data/cluster_114575.pcd",
-#         "./inference/data/cluster_109866.pcd",
-#     ]
-#     for file in pcd_files:
-#         os.remove(file)
-#     quit()
