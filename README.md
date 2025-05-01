@@ -62,6 +62,7 @@ The grid-search is done by running the _gridsearch.py_ script. It will loop into
 All the hyperparameters can be specified at the beggining of the _main()_ and the range of kernel size and number of repetition of the kernel are specified by the variables _lst_kernel_sizes_ and _lst_repeat_kernel_.
 
 ## Inference
-In order to do inference, the samples to processed needs to be placed in the folder _./inference/data/_.
-The inferencec is then done by running the script _inference.py_. It will process each sample with the model saved in _./model/pretrained/model_KDE.tar_.
+In order to do inference, the samples to processed needs to be placed in the folder _./inference/<SRC_INF_DATA>/_ (where SRC_INF_DATA is given in the HYPERPARAMETERS part of the _inference.py_ script).
+The inference is then done by running the script _inference.py_. It will process each sample with the model saved in <SRC_MODEL>.
 The samples will be copied in the folder _./inference/results/_ inside the folder corresponding to their respective class and a file _results.csv_ will be created containing the class assignation per sample. 
+Moreover, the failing samples will be stored in a corresponding folder and file _failed_data.csv_ will be created in the results.
