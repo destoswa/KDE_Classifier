@@ -2,7 +2,7 @@
 ## Installation
 In order to setup the environment, first create a virtual environement from the root of the project:
 ```
-python -m venv .venv
+python -m venv .venv && source .venv/bin/activate
 ```
 Then, in order to install the differente libraries, two requirements.txt files are at disposal depending on the version of CUDA that you are using. Whether you are on windows or linux, you can find the version of CUDA you are using with the command:
 ```
