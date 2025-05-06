@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 
 class ModelTreesDataLoader(Dataset):
-    def __init__(self, csvfile, root_dir, split, transform, do_update_caching, kde_transform, frac=1.0):
+    def __init__(self, csvfile, root_dir, split, transform, do_update_caching, kde_transform, frac=1.0, result_dir='results', verbose=True):
         """
             Arguments:
                 :param csv_file (string): Path to the csv file with annotations
@@ -38,28 +38,35 @@ class ModelTreesDataLoader(Dataset):
                 os.mkdir(pickle_dir + "data")
         self.data = pd.read_csv(root_dir + csvfile, delimiter=';')
 
-        print('Loading ', split, ' set...')
+        if verbose:
+            print('Loading ', split, ' set...')
         self.num_fails = []
         if do_update_caching:
             # creating grids using multiprocess
             with concurrent.futures.ProcessPoolExecutor() as executor:
                 partialmapToKDE = partial(self.mapToKDE, root_dir, pickle_dir, kde_transform)
                 args = range(len(self.data))
-                results = list(tqdm(executor.map(partialmapToKDE, args), total=len(self.data), smoothing=.9, desc="creating caching files"))
+                results = list(tqdm(executor.map(partialmapToKDE, args), total=len(self.data), smoothing=.9, desc="Creating caching files", disable=not verbose))
             self.num_fails = [(idx, x) for (idx, x) in enumerate(results) if x != ""]
-            print(f"Number of failing files: {len(self.num_fails)}")
+            if verbose:
+                print(f"Number of failing files: {len(self.num_fails)}")
 
             # Update self.data and csv files for data and failed_data
             df_failed_data = self.data.iloc[[x for x,_ in self.num_fails]]
             self.data.drop(labels=[x for x,_ in self.num_fails], axis=0, inplace=True)
-            df_failed_data.to_csv(os.path.join(root_dir, "results/failed_data.csv"), sep=';', index=True, index_label="Index")
+            df_failed_data.to_csv(os.path.join(root_dir, result_dir, "failed_data.csv"), sep=';', index=True, index_label="Index")
             self.data.to_csv(os.path.join(root_dir, csvfile), sep=';', index=False)
 
         # shuffle the dataset
         self.data = self.data.sample(frac=frac, random_state=42).reset_index(drop=True)
+        lst_file_names = [os.path.basename(x) + '.pickle' for x in self.data.data.values]
+        # print(lst_file_names)
+        self.data.data = lst_file_names
+        # print(self.data.head())
+        # quit()
 
-        for idx, samp in tqdm(self.data.iterrows(), total=len(self.data), smoothing=.9, desc="loading file names"):
-            self.data.iloc[idx, 0] = os.path.join('data', os.path.basename(samp['data']) + '.pickle')
+        # for idx, samp in tqdm(self.data.iterrows(), total=len(self.data), smoothing=.9, desc="loading file names"):
+        #     self.data.iloc[idx, 0] = os.path.join('data', os.path.basename(samp['data']) + '.pickle')
 
     def __len__(self):
         return len(self.data)
@@ -94,7 +101,7 @@ class ModelTreesDataLoader(Dataset):
             sample = {'data': pointCloud, 'label': label}
             sample = kde_transform(sample)
 
-            with open(os.path.join(pickle_dir, 'data', os.path.basename(samp['data']) + '.pickle'), 'wb') as file:
+            with open(os.path.join(pickle_dir, os.path.basename(samp['data']) + '.pickle'), 'wb') as file:
                 pickle.dump(sample, file)
             return ""
         except Exception as e:
