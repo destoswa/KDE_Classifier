@@ -21,7 +21,7 @@ do_preprocess = True
 verbose = False
 
 # inference
-chunk_size=100    # number of files processed at the time (0 = all of them)
+chunk_size=10000    # number of files processed at the time (0 = all of them)
 batch_size = 12
 num_workers = 12
 num_class = 3
