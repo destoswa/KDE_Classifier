@@ -21,7 +21,7 @@ do_preprocess = True
 verbose = False
 
 # inference
-chunk_size=10000    # number of files processed at the time (0 = all of them)
+chunk_size=30    # number of files processed at the time (0 = all of them)
 batch_size = 12
 num_workers = 12
 num_class = 3
@@ -30,8 +30,8 @@ kernel_size = 1
 num_repeat_kernel = 2
 
 src_inf_root = "./inference/"
-src_inf_data = "data_test"
-src_inf_results = "results"
+src_inf_data = "test"
+src_inf_results = src_inf_data + "_results"
 src_model = "./models/pretrained/model_KDE.tar"
 inference_file = "modeltrees_inference.csv"
 with open(src_inf_root + 'modeltrees_shape_names.txt', 'r') as f:
